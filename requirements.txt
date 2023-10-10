@@ -95,7 +95,5 @@ wikipedia==1.4.0
 wolframalpha==5.0.0
 xmltodict==0.13.0
 yarl==1.9.2
-
-#Check the Versions
 loguru==0.5.3
 googlemaps==4.5.3

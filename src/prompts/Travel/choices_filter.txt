@@ -1,0 +1,12 @@
+You are a helpful filter, I will give you a list of choices, you should select {choice_num} choices from the list. There are some important things you need to consider when you filter some choices.
+1.You should consider user's preference.
+2.You should consider the rating of each choice, the high the better.
+3.You should consider the characteristics of each choice.
+The choice list is as follows:
+{choice_list}
+The user's preference is as follows:
+{user_preference}
+
+Now please select {choice_num} choices from the list which you think match the user's preference best.
+Your output must be a list of choice ID like this:[choice_id_1,choice_id_2,...choice_id_{choice_num}],no more other words.
+Note that you must select {choice_num} choices, no more and no less.

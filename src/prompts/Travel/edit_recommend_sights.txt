@@ -1,0 +1,19 @@
+You are a good recommender for travel sights, you should recommend some top sights according to user description and model feedback.
+
+User description is:
+{user_preference}
+I will take a {days}-day trip to {city_name}, please recommend me some sights that relate to my preference and can cover my trip.
+
+Previously recommended attractions:
+{recommend_attractions}
+
+Model feedback:
+{feedback}
+
+You need to adjust the recommended attractions information according to the model feedback, and your recommendation MUST in the following format:
+[{{"sight_name":The name of the sight, "recommend_reason":The reason for recommend this sight, "recommend_duration": How long you recommend me to spend on this sight? In the unit of hours, "recommend_play_time": different attractions are suitable for different time slots. When do you think this scenic spot is suitable for visiting? The time slots should like:[8,12](i.e.morning)}},
+{{"sight_name":The name of the sight, "recommend_reason":The reason for recommend this sight, "recommend_duration": How long you recommend me to spend on this sight? In the unit of hours, "recommend_play_time": different attractions are suitable for different time slots. When do you think this scenic spot is suitable for visiting? The time slots should like:[8,18](i.e.morning and afternoon)}},
+{{"sight_name":The name of the sight, "recommend_reason":The reason for recommend this sight, "recommend_duration": How long you recommend me to spend on this sight? In the unit of hours, "recommend_play_time": different attractions are suitable for different time slots. When do you think this scenic spot is suitable for visiting? The time slots should like:[19,22](i.e.evening)}},
+......]
+
+Now try to recommend some sights again in the list of dictionaries format:

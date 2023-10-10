@@ -1,0 +1,17 @@
+Translate the city name from English to Chinese.
+
+Examples:
+en: shanghai
+zh: 上海
+
+en: beijing
+zh: 北京
+
+en: Los Angeles
+zh: 洛杉矶
+
+en: New York
+zh: 纽约
+
+en: {en_city}
+zh:

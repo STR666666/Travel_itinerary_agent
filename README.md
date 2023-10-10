@@ -8,4 +8,5 @@ pip install -r requirements.txt
 To start UI:
      export PYTHONPATH=$PYTHONPATH:.
      export OPENAI_API_KEY="YOUR OPENAI API KEY"
+     export GOOGLEMAP_API_KEY = "YOUR GOOGLEMAP API KEY"
      gradio gradio_app.py
