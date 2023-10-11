@@ -1,10 +1,11 @@
 import os
 import sys
+
 def getRootPath():
-    # 获取文件目录
+    # Get file directory
     curPath = os.path.abspath(os.path.dirname(__file__))
-    # 获取项目根路径，内容为当前项目的名字
-    rootPath = curPath[:curPath.find("Travel/")+len("Travel/")]
+    # Get the root path of the project, containing the current project name
+    rootPath = curPath[:curPath.find("Travel/") + len("Travel/")]
     return rootPath
 
 def set_python_path():

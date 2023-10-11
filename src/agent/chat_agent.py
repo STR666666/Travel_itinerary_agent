@@ -1,9 +1,11 @@
-from langchain.evaluation.agents import TrajectoryEvalChain
-from langchain.agents import AgentExecutor, LLMSingleActionAgent
 from langchain import LLMChain
+from langchain.agents import AgentExecutor, LLMSingleActionAgent
 from langchain.chat_models import ChatOpenAI
+from langchain.evaluation.agents import TrajectoryEvalChain
+from src.agent.prompt_template import (ReActOutputParser, ReActPromptTemplate,
+                                       T5OutputParser, T5PromptTemplate)
 from src.agent.retriever import ToolRetriever
-from src.agent.prompt_template import ReActPromptTemplate, T5PromptTemplate, ReActOutputParser, T5OutputParser
+
 
 class UI_info:
     wait_user_inputs: bool = False
@@ -12,9 +14,12 @@ class UI_info:
     intermediate_step_index: int = 0
     travel_plans: list = []
 
+
 class Agent:
-    """The agent generate reasoning path and call APIs"""
-    def __init__(self, tool_path, agent_id=0, model_name="gpt-3.5-turbo-16k-0613", debug=False, visualize_trajectory=True, mode="T5"):
+    """The agent generates reasoning path and calls APIs"""
+
+    def __init__(self, tool_path, agent_id=0, model_name="gpt-3.5-turbo-16k-0613",
+                 debug=False, visualize_trajectory=True, mode="T5"):
         self.agent_id = agent_id
         self.debug = debug
         self.UI_info = UI_info()
@@ -24,6 +29,33 @@ class Agent:
         self.retriever = ToolRetriever(tool_path=tool_path)
         self.tools = self.retriever.get_tools()
 
+        self.match_mode(mode)  # Pick mode
+
+        self.started = False
+        self.llm_chain = LLMChain(llm=self.llm, prompt=self.Prompt_template, verbose=self.debug)
+        tool_names = [tool.name for tool in self.tools]
+        self.agent = LLMSingleActionAgent(
+            llm_chain=self.llm_chain,
+            stop=["Tool output:"] if mode == "T5" else ["Observation:"],
+            output_parser=self.output_parser,
+            allowed_tools=tool_names,
+            verbose=self.debug,
+        )
+        self.agent_executor = AgentExecutor.from_agent_and_tools(
+            agent=self.agent,
+            tools=self.tools,
+            verbose=self.visualize_trajectory,
+            max_iterations=100,
+            max_execution_time=60 * 60
+        )
+        self.eval_llm = ChatOpenAI(temperature=0, model_name="gpt-4-0613")
+        self.eval_chain = TrajectoryEvalChain.from_llm(
+            llm=self.eval_llm,  # Note: This must be a chat model
+            agent_tools=self.tools,
+            return_reasoning=True,
+        )
+
+    def match_mode(self, mode):
         match mode:
             case "T5":
                 with open("src/prompts/Format/T5prompt.txt") as f:
@@ -61,27 +93,6 @@ class Agent:
                     input_variables=["input", "intermediate_steps"]
                 )
                 self.output_parser = ReActOutputParser()
-
-        self.started = False
-        self.llm_chain = LLMChain(llm=self.llm, prompt=self.Prompt_template, verbose=self.debug)
-        tool_names = [tool.name for tool in self.tools]
-        self.agent = LLMSingleActionAgent(
-            llm_chain=self.llm_chain,
-            stop=["Tool output:"] if mode == "T5" else ["Observation:"],
-            output_parser=self.output_parser,
-            allowed_tools=tool_names,
-            verbose=self.debug,
-        )
-        self.agent_executor = AgentExecutor.from_agent_and_tools(agent=self.agent,
-                                                                 tools=self.tools, verbose=self.visualize_trajectory,
-                                                                 max_iterations=100, max_execution_time=60*60)
-        self.eval_llm = ChatOpenAI(temperature=0, model_name="gpt-4-0613")
-        self.eval_chain = TrajectoryEvalChain.from_llm(
-            llm=self.eval_llm,  # Note: This must be a chat model
-            agent_tools=self.tools,
-            return_reasoning=True,
-        )
-        
 
     def kill_agent(self):
         self.agent_executor.killed = True

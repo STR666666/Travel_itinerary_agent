@@ -61,8 +61,8 @@ class TravelAgent:
     def plan_one_day_itinerary(self, partition, day):
         """Plans a one-day itinerary based on a given set of destinations and the specific day."""
         
-        with open("src/prompts/Travel/make_one_day_itinerary_prompt.txt") as file:
-            travel_prompt = file.read()
+        with open("src/prompts/Travel/make_one_day_itinerary_prompt.txt") as f:
+            travel_prompt = f.read()
         travel_prompt_template = GeneralPromptTemplate(
             template=travel_prompt,
             input_variables=["points", "distances"]
@@ -104,30 +104,31 @@ class TravelAgent:
 
     def plan_full_itinerary(self, remaining_sights, partitions):
         """Plans the full itinerary."""
-        flight_info = self.gmaps.search_flights(self.departure, self.destination)
-        flight_text = "Title: {}\nLink: {}\nSnippet: {}".format(
-            flight_info["title"],
-            flight_info["link"],
-            flight_info["snippet"]
-        )
-
         for day, partition in enumerate(partitions, start=1):
             daily_plan = self.plan_one_day_itinerary(partition, day)
             if not daily_plan:
                 print("Failed to generate a plan for day", day) 
                 return
-            
             self.whole_plans.append(daily_plan)
-            self.whole_plans.append("1. Flight Information:\n\n{}\n\n".format(flight_text))
-            agent = global_value.get_dict_value('agents', self.agent_id)
-
-            if agent is None:
-                print("Agent not found") 
-                return ""
             
-            agent.UI_info.travel_plans.append(
-                "This is the booking information.\n\n{}".format(self.whole_plans[-1])
-            )
+        flight_info = self.gmaps.search_flights(self.departure, self.destination)
+        flight_text = "Title: {}\nLink: {}\nSnippet: {}".format(
+        flight_info["title"],
+        flight_info["link"],
+        flight_info["snippet"]
+        )
+        
+        self.whole_plans.append("1. Flight Information:\n\n{}\n\n".format(flight_text))
+        agent = global_value.get_dict_value('agents', self.agent_id)
+
+        if agent is None:
+            print("Agent not found") 
+            return ""
+        
+        agent.UI_info.travel_plans.append(
+            "This is the booking information.\n\n{}".format(self.whole_plans[-1])
+        )
+
 
 
     def run(self):

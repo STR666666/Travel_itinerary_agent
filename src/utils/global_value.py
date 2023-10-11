@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-def _init():  # 初始化
+def _init():  # Initialization
     global _global_dict
     _global_dict = {}
 
 
 def set_value(key, value):
-    """ 定义一个跨文件全局变量 """
+    """ Define a global variable across files """
     _global_dict[key] = value
 
 def set_dict_value(key,sub_key,value):
@@ -19,7 +19,7 @@ def get_value(key):
         return 0
 
 def get_dict_value(key, sub_key):
-    """ 获得一个跨文件全局变量,不存在则返回默认值 """
+    """ Obtain a global variable across files, return default value if not exist """
     try:
         return _global_dict[key][sub_key]
     except KeyError:
