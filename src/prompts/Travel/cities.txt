@@ -1,0 +1,11 @@
+Examples of cities:
+
+Paris
+
+Los Angeles
+
+New York
+
+San Francisco
+
+{cities}

@@ -26,7 +26,7 @@ class Agent:
 
         match mode:
             case "T5":
-                with open("src/prompts/T5prompt.txt") as f:
+                with open("src/prompts/Format/T5prompt.txt") as f:
                     self.T5_prompt = f.read()
                 self.Prompt_template = T5PromptTemplate(
                     template=self.T5_prompt,
@@ -44,7 +44,7 @@ class Agent:
                 )
                 self.output_parser = ReActOutputParser()
             case "ReAct_chat":
-                with open("src/prompts/ReAct_chat_prompt.txt") as f:
+                with open("src/prompts/Format/ReAct_chat_prompt.txt") as f:
                     self.ReAct_chat_prompt = f.read()
                 self.Prompt_template = ReActPromptTemplate(
                     template=self.ReAct_chat_prompt,
@@ -53,7 +53,7 @@ class Agent:
                 )
                 self.output_parser = ReActOutputParser()
             case _:
-                with open("src/prompts/ReAct_prompt.txt") as f:
+                with open("src/prompts/Format/ReAct_prompt.txt") as f:
                     self.ReAct_prompt = f.read()
                 self.Prompt_template = ReActPromptTemplate(
                     template=self.ReAct_prompt,

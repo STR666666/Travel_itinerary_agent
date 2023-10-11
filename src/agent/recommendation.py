@@ -14,13 +14,8 @@ class Recommender:
         self.city_name = city_name
         self.days = days
         self.user_preference = user_preference
-        self.use_zh_api =True
-        if self.use_zh_api:
-            with open("src/prompts/Travel/sight_recommendation_zh.txt") as f:
-                recommend_prompt = f.read()
-        else:
-            with open("src/prompts/Travel/sight_recommendation.txt") as f:
-                recommend_prompt = f.read()
+        with open("src/prompts/Travel/sight_recommendation.txt") as f:
+            recommend_prompt = f.read()
         recommend_prompt_template = GeneralPromptTemplate(template=recommend_prompt,
                                                            input_variables=["city_name", "user_preference", "days","api_attractions"])
         chat_llm = ChatOpenAI(temperature=1, model_name="gpt-3.5-turbo-16k-0613")
@@ -28,42 +23,27 @@ class Recommender:
         self.gmaps = google_map_client()
 
     def recommend_sights(self):
-        if self.use_zh_api:
-            with open("src/prompts/get_zh_city.txt") as f:
-                zh_prompt = f.read()
-            zh_prompt_template = GeneralPromptTemplate(template=zh_prompt,
-                                                            input_variables=["en_city",])
-            chat_llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-            llm_chain = LLMChain(llm=chat_llm, prompt=zh_prompt_template, verbose=DEBUG)
-            zh_city = llm_chain({"en_city": self.city_name,}, return_only_outputs=True)['text']
-            #get api recommendation, about 10 items
-            api_recommendation =  get_api_recommendation(zh_city.strip())
-            api_recommendation_text =""
-            if api_recommendation["resp"]["RespCode"]=="200":
-                for r_spot in api_recommendation["data"]["record"]:
-                    leave={}
-                    leave["sight_name"]=r_spot["spot"]
-                    leave["type"]=r_spot["type"]
-                    leave["recommend_duration"]=r_spot["visittime"]
-                    leave["open_time"]=r_spot["opentime"]
-                    api_recommendation_text = api_recommendation_text+str(leave)+"\n"
-                #translate to english
-                with open("src/prompts/get_zh.txt") as f:
-                    get_zh_prompt = f.read()
-                get_zh_prompt_template = GeneralPromptTemplate(template=get_zh_prompt,
-                                                                input_variables=["zh_text"])
-                chat_llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-                llm_chain = LLMChain(llm=chat_llm, prompt=get_zh_prompt_template, verbose=DEBUG)
-                api_recommendation_text = llm_chain({"zh_text": api_recommendation_text,}, return_only_outputs=True)['text']
+        with open("src/prompts/Travel/cities.txt") as f:
+            cities_prompt = f.read()
+        recommend_prompt_template = GeneralPromptTemplate(template=cities_prompt,
+                                                           input_variables=["cities"])
+        chat_llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+        llm_chain = LLMChain(llm=chat_llm, prompt = recommend_prompt_template, verbose=DEBUG)
+        api_recommendation = get_api_recommendation(self.city_name.strip())
+        api_recommendation_text =""
+        if api_recommendation["resp"]["RespCode"]=="200":
+            for r_spot in api_recommendation["data"]["record"]:
+                leave={}
+                leave["sight_name"]=r_spot["spot"]
+                leave["type"]=r_spot["type"]
+                leave["recommend_duration"]=r_spot["visittime"]
+                leave["open_time"]=r_spot["opentime"]
+                api_recommendation_text = api_recommendation_text+str(leave)+"\n"
             
-            recommended_sights = self.llm_chain(
-                {"city_name": self.city_name, "user_preference": self.user_preference, "days": self.days, "api_attractions": api_recommendation_text},
-                return_only_outputs=True)['text']
-        else:
-            recommended_sights = self.llm_chain(
-                {"city_name": self.city_name, "user_preference": self.user_preference, "days": self.days},
-                return_only_outputs=True)['text']
-
+        recommended_sights = self.llm_chain(
+            {"city_name": self.city_name, "user_preference": self.user_preference, "days": self.days, "api_attractions": api_recommendation_text},
+            return_only_outputs=True)['text']
+        
         regex = r"""[({"sight_name":.*, "recommend_reason":.*, "recommend_duration:.*"},)*{"sight_name":.*, "recommend_reason":.*, "recommend_duration:.*, ""recommend_play_time":.*"}]"""
         match = re.search(regex, recommended_sights)
         if match:
@@ -83,7 +63,6 @@ class Recommender:
         feedback = llm_chain({"recommend_attractions": recommend_attractions, "city_name": self.city_name, "days": self.days,
                                 "user_preference": self.user_preference}, return_only_outputs=True)['text']
         return feedback
-
 
     def edit_recommend_sights(self, recommend_attractions, feedback):
         with open("src/prompts/Travel/edit_recommend_sights.txt") as f:

@@ -5,12 +5,11 @@ You need to obey the following requirements:
 3. You should also specify the distance between each site and the time to switch between them.
 4. Sum all the cost range in the end.
 
-Your agenda may look like this:
-hotel->sight/restaurant[repeat N times]->hotel
+Your agenda for 1 day may look like this:
+    hotel->sight/restaurant[repeat N times]->hotel
+
 Note that between each adjacent place on the route, you should specify the distance and time to switch.
 Given points(which contains hotel,sights,restaurants):
 {points}
 The distances between them are:
 {distances}
-
-Please include hotels at the end of each day!!!

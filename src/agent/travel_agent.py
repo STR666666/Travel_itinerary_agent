@@ -104,6 +104,13 @@ class TravelAgent:
 
     def plan_full_itinerary(self, remaining_sights, partitions):
         """Plans the full itinerary."""
+        flight_info = self.gmaps.search_flights(self.departure, self.destination)
+        flight_text = "Title: {}\nLink: {}\nSnippet: {}".format(
+            flight_info["title"],
+            flight_info["link"],
+            flight_info["snippet"]
+        )
+
         for day, partition in enumerate(partitions, start=1):
             daily_plan = self.plan_one_day_itinerary(partition, day)
             if not daily_plan:
@@ -111,14 +118,6 @@ class TravelAgent:
                 return
             
             self.whole_plans.append(daily_plan)
-
-            flight_info = self.gmaps.search_flights(self.departure, self.destination)
-            flight_text = "Title: {}\nLink: {}\nSnippet: {}".format(
-                flight_info["title"],
-                flight_info["link"],
-                flight_info["snippet"]
-            )
-            
             self.whole_plans.append("1. Flight Information:\n\n{}\n\n".format(flight_text))
             agent = global_value.get_dict_value('agents', self.agent_id)
 
